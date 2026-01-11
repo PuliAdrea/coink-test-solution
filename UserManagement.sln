@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Infrastructu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.API", "UserManagement.API\UserManagement.API.csproj", "{25D79D5B-1B54-498C-B2E2-72902B4A0D29}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Tests", "UserManagement.Tests\UserManagement.Tests.csproj", "{515921C0-AFDC-4061-951C-5BFD79AE7156}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{25D79D5B-1B54-498C-B2E2-72902B4A0D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25D79D5B-1B54-498C-B2E2-72902B4A0D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25D79D5B-1B54-498C-B2E2-72902B4A0D29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{515921C0-AFDC-4061-951C-5BFD79AE7156}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{515921C0-AFDC-4061-951C-5BFD79AE7156}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{515921C0-AFDC-4061-951C-5BFD79AE7156}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{515921C0-AFDC-4061-951C-5BFD79AE7156}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
