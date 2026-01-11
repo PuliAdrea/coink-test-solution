@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using UserManagement.Application.DTOs;
 using UserManagement.Domain.Entities;
+using UserManagement.Domain.Exceptions;
 using UserManagement.Domain.Interfaces;
 
 namespace UserManagement.Application.Services;
@@ -16,7 +17,6 @@ public class UserService : IUserService
 
     public async Task<int> RegisterUserAsync(CreateUserDto dto)
     {
-        // 1. Basic Validations
         if (string.IsNullOrWhiteSpace(dto.Name))
             throw new ArgumentException("Name is required.");
 
@@ -26,14 +26,12 @@ public class UserService : IUserService
         if (dto.MunicipalityId <= 0)
             throw new ArgumentException("Valid Municipality is required.");
 
-        // 2. Phone Regex Validation (Simple pattern: 7 to 15 digits, optional +)
         var phoneRegex = new Regex(@"^\+?\d{7,15}$");
         if (!phoneRegex.IsMatch(dto.Phone))
         {
             throw new ArgumentException("Invalid phone number format.");
         }
 
-        // 3. Map DTO to Domain Entity
         var user = new User
         {
             Name = dto.Name,
@@ -42,7 +40,6 @@ public class UserService : IUserService
             MunicipalityId = dto.MunicipalityId
         };
 
-        // 4. Call Repository
         return await _userRepository.RegisterUserAsync(user);
     }
 
@@ -53,17 +50,20 @@ public class UserService : IUserService
             u.id, u.name, u.phone, u.address, u.municipalityname, u.departmentname, u.countryname));
     }
 
-    public async Task<UserResponseDto?> GetByIdAsync(int id)
+    public async Task<UserResponseDto> GetByIdAsync(int id)
     {
         var u = await _userRepository.GetUserByIdAsync(id);
-        if (u == null) return null;
+        if (u == null)
+            throw new NotFoundException("User", id);
+
         return new UserResponseDto(u.Id, u.Name, u.Phone, u.Address, "", "", "");
     }
 
     public async Task UpdateAsync(int id, CreateUserDto dto)
     {
         var existing = await _userRepository.GetUserByIdAsync(id);
-        if (existing == null) throw new KeyNotFoundException("User not found");
+        if (existing == null)
+            throw new NotFoundException("User", id);
 
         var user = new User { Id = id, Name = dto.Name, Phone = dto.Phone, Address = dto.Address, MunicipalityId = dto.MunicipalityId };
         await _userRepository.UpdateUserAsync(user);

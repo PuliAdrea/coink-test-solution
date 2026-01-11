@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UserManagement.Application.DTOs;
 using UserManagement.Application.Services;
+using UserManagement.Application.Wrappers;
 
 namespace UserManagement.API.Controllers;
 
@@ -18,22 +19,10 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> RegisterUser([FromBody] CreateUserDto dto)
     {
-        try
-        {
-            var userId = await _userService.RegisterUserAsync(dto);
-            return Ok(new { Message = "User registered successfully", UserId = userId });
-        }
-        catch (ArgumentException ex)
-        {
-            // Return 400 for validation errors
-            return BadRequest(new { Error = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            // Return 500 for generic server errors
-            return StatusCode(500, new { Error = "Internal Server Error", Details = ex.Message });
-        }
+        var userId = await _userService.RegisterUserAsync(dto);
+        return Ok(new ApiResponse<int>(userId, "User created successfully"));
     }
+
 
     [HttpGet]
     public async Task<IActionResult> GetAll() => Ok(await _userService.GetAllAsync());
@@ -42,7 +31,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var user = await _userService.GetByIdAsync(id);
-        return user == null ? NotFound() : Ok(user);
+        return Ok(new ApiResponse<UserResponseDto>(user));
     }
 
     [HttpPut("{id}")]
