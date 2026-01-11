@@ -5,11 +5,6 @@ using UserManagement.Domain.Interfaces;
 
 namespace UserManagement.Application.Services;
 
-public interface IUserService
-{
-    Task<int> RegisterUserAsync(CreateUserDto dto);
-}
-
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
@@ -49,5 +44,33 @@ public class UserService : IUserService
 
         // 4. Call Repository
         return await _userRepository.RegisterUserAsync(user);
+    }
+
+    public async Task<IEnumerable<UserResponseDto>> GetAllAsync()
+    {
+        var users = await _userRepository.GetAllUsersAsync();
+        return users.Select(u => new UserResponseDto(
+            u.id, u.name, u.phone, u.address, u.municipalityname, u.departmentname, u.countryname));
+    }
+
+    public async Task<UserResponseDto?> GetByIdAsync(int id)
+    {
+        var u = await _userRepository.GetUserByIdAsync(id);
+        if (u == null) return null;
+        return new UserResponseDto(u.Id, u.Name, u.Phone, u.Address, "", "", "");
+    }
+
+    public async Task UpdateAsync(int id, CreateUserDto dto)
+    {
+        var existing = await _userRepository.GetUserByIdAsync(id);
+        if (existing == null) throw new KeyNotFoundException("User not found");
+
+        var user = new User { Id = id, Name = dto.Name, Phone = dto.Phone, Address = dto.Address, MunicipalityId = dto.MunicipalityId };
+        await _userRepository.UpdateUserAsync(user);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        await _userRepository.DeleteUserAsync(id);
     }
 }

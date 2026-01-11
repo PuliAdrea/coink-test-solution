@@ -34,4 +34,28 @@ public class UsersController : ControllerBase
             return StatusCode(500, new { Error = "Internal Server Error", Details = ex.Message });
         }
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll() => Ok(await _userService.GetAllAsync());
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var user = await _userService.GetByIdAsync(id);
+        return user == null ? NotFound() : Ok(user);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CreateUserDto dto)
+    {
+        await _userService.UpdateAsync(id, dto);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _userService.DeleteAsync(id);
+        return NoContent();
+    }
 }

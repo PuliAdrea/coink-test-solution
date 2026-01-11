@@ -4,7 +4,10 @@ namespace UserManagement.Domain.Interfaces
 {
     public interface IUserRepository
     {
-        // Returns the new User ID
         Task<int> RegisterUserAsync(User user);
+        Task<IEnumerable<dynamic>> GetAllUsersAsync(); 
+        Task<User?> GetUserByIdAsync(int id);
+        Task UpdateUserAsync(User user);
+        Task DeleteUserAsync(int id);
     }
 }
