@@ -36,4 +36,27 @@ public class UserRepository : IUserRepository
 
         return newId;
     }
+    public async Task<IEnumerable<dynamic>> GetAllUsersAsync()
+    {
+        using var conn = new NpgsqlConnection(_connectionString);
+        return await conn.QueryAsync<dynamic>("SELECT * FROM sp_GetAllUsers()");
+    }
+
+    public async Task<User?> GetUserByIdAsync(int id)
+    {
+        using var conn = new NpgsqlConnection(_connectionString);
+        return await conn.QueryFirstOrDefaultAsync<User>("SELECT * FROM sp_GetUserById(@Id)", new { Id = id });
+    }
+
+    public async Task UpdateUserAsync(User user)
+    {
+        using var conn = new NpgsqlConnection(_connectionString);
+        await conn.ExecuteAsync("SELECT sp_UpdateUser(@Id, @Name, @Phone, @Address, @MunicipalityId)", user);
+    }
+
+    public async Task DeleteUserAsync(int id)
+    {
+        using var conn = new NpgsqlConnection(_connectionString);
+        await conn.ExecuteAsync("SELECT sp_DeleteUser(@Id)", new { Id = id });
+    }
 }
