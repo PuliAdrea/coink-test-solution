@@ -8,126 +8,314 @@ Esta es una solución robusta y escalable desarrollada en **.NET 8** que impleme
 
 ---
 
-## 🛠️ Guía de Configuración e Instalación
+## 🚀 Inicio Rápido
 
-Siga estos pasos para configurar el entorno y ejecutar la solución en una máquina local.
+Elige el método de ejecución que prefieras:
 
-### 1. Prerrequisitos
-* **.NET 8 SDK** instalado.
-* **PostgreSQL 18** o superior en ejecución.
-* Un IDE de su preferencia (Visual Studio, VS Code o JetBrains Rider).
+- **[Ejecución con Docker](#-ejecución-con-docker)** (Recomendado - Más fácil y rápido)
+- **[Ejecución sin Docker](#-ejecución-sin-docker)** (Requiere instalaciones locales)
 
-### 2. Inicialización de la Base de Datos
-1. Abra su cliente de PostgreSQL (pgAdmin, DBeaver, etc.).
-2. Cree una base de datos con el nombre: `coink_users`.
-3. Ejecute los scripts SQL en el siguiente orden para asegurar la integridad de las llaves foráneas:
-   * **Paso 1 (DDL):** Ejecute el script de creación de tablas (`Countries`, `Departments`, `Municipalities`, `Users`).
-   * **Paso 2 (Functions):** Ejecute el script que crea el Stored Procedure `sp_RegisterUser`.
-   * **Paso 3 (DML Seeding):** Ejecute el script de inserción de datos maestros para poblar la jerarquía geográfica.
+---
 
-### 3. Configuración de la API
-Localice el archivo `appsettings.json` en el proyecto **UserManagement.API** y actualice la cadena de conexión con sus credenciales locales:
+## 🐳 Ejecución con Docker
 
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Host=localhost;Port=5432;Database=coink_users;Username=postgres;Password=TU_PASSWORD"
-}
-```
-### 4. Ejecución
-Desde una terminal situada en la raíz de la solución, ejecute los siguientes comandos para poner en marcha el sistema:
+Esta es la forma más sencilla de ejecutar la solución. Docker se encargará de configurar automáticamente PostgreSQL y la API.
+
+### Prerrequisitos
+
+- **Docker Desktop** instalado y ejecutándose
+  - Windows/Mac: Descargar desde [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+  - Linux: Instalar Docker Engine y Docker Compose
+
+### Pasos de Ejecución
+
+1. **Clonar o descargar el repositorio** (si aún no lo has hecho)
+
+2. **Abrir una terminal** en la raíz del proyecto (donde está el archivo `docker-compose.yml`)
+
+3. **Ejecutar Docker Compose:**
+   ```bash
+   docker-compose up -d
+   ```
+   Este comando:
+   - Descargará las imágenes necesarias (si es la primera vez)
+   - Construirá la imagen de la API
+   - Iniciará PostgreSQL 18
+   - Inicializará la base de datos con los scripts SQL
+   - Iniciará la API .NET
+
+4. **Verificar que los servicios estén corriendo:**
+   ```bash
+   docker-compose ps
+   ```
+   Deberías ver ambos servicios (`coink-api` y `coink-postgres`) con estado `Up`.
+
+5. **Acceder a la API:**
+   - **Swagger UI**: http://localhost:8080/swagger
+   - **API Base**: http://localhost:8080
+   - **Endpoint de usuarios**: http://localhost:8080/api/users
+
+### Comandos Útiles de Docker
 
 ```bash
-# 1. Restaurar las dependencias de NuGet en todos los proyectos
+# Ver los logs de la API
+docker-compose logs -f api
+
+# Ver los logs de PostgreSQL
+docker-compose logs -f postgres
+
+# Detener los servicios
+docker-compose down
+
+# Detener los servicios y eliminar volúmenes (cuidado: elimina datos)
+docker-compose down -v
+
+# Reconstruir las imágenes (útil después de cambios en el código)
+docker-compose up -d --build
+
+# Reiniciar un servicio específico
+docker-compose restart api
+```
+
+### Configuración de Docker
+
+La configuración de Docker está en `docker-compose.yml`:
+
+- **API**: Puerto 8080 (configurable en docker-compose.yml)
+- **PostgreSQL**: Puerto 5432 (configurable en docker-compose.yml)
+- **Base de datos**: `coink_users`
+- **Usuario PostgreSQL**: `postgres`
+- **Contraseña PostgreSQL**: `postgres123` (cambiar en producción)
+
+Para cambiar las credenciales o puertos, edita el archivo `docker-compose.yml`.
+
+---
+
+## 💻 Ejecución sin Docker
+
+Si prefieres ejecutar la solución directamente en tu máquina local sin Docker.
+
+### Prerrequisitos
+
+- **.NET 8 SDK** instalado
+  - Descargar desde [dotnet.microsoft.com/download](https://dotnet.microsoft.com/download)
+  - Verificar instalación: `dotnet --version`
+- **PostgreSQL 18** o superior instalado y ejecutándose
+  - Descargar desde [postgresql.org/download](https://www.postgresql.org/download/)
+  - Crear usuario y base de datos
+- Un IDE de su preferencia (Visual Studio, VS Code, JetBrains Rider)
+
+### Pasos de Ejecución
+
+#### 1. Configurar PostgreSQL
+
+1. Abrir su cliente de PostgreSQL (pgAdmin, DBeaver, psql, etc.)
+
+2. Crear una base de datos:
+   ```sql
+   CREATE DATABASE coink_users;
+   ```
+
+3. Ejecutar los scripts SQL en el siguiente orden:
+   
+   Los scripts están en la carpeta `scripts/`:
+   - **01_Schema_and_Table_Creation.sql**: Crea las tablas (Countries, Departments, Municipalities, Users)
+   - **02_create_Stored_Procedures.sql**: Crea los stored procedures
+   - **03_Insert_data.sql**: Inserta datos maestros de ejemplo
+   
+   **Orden de ejecución** (importante para la integridad de las llaves foráneas):
+   1. Primero: `01_Schema_and_Table_Creation.sql`
+   2. Segundo: `02_create_Stored_Procedures.sql`
+   3. Tercero: `03_Insert_data.sql`
+
+#### 2. Configurar la API
+
+1. Localizar el archivo `appsettings.json` en el proyecto **UserManagement.API**
+
+2. Actualizar la cadena de conexión con sus credenciales:
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Host=localhost;Port=5432;Database=coink_users;Username=TU_USUARIO;Password=TU_PASSWORD"
+     }
+   }
+   ```
+
+#### 3. Ejecutar la Aplicación
+
+Desde una terminal en la raíz de la solución:
+
+```bash
+# 1. Restaurar las dependencias de NuGet
 dotnet restore
 
-# 2. Compilar la solución para verificar que no existan errores
+# 2. Compilar la solución
 dotnet build
 
-# 3. Iniciar el proyecto de la API
+# 3. Ejecutar la API
 dotnet run --project UserManagement.API
-
 ```
 
-Una vez ejecutada, la API estará disponible y podrá acceder a la interfaz interactiva de Swagger en la siguiente URL para realizar pruebas: https://localhost:5001/swagger/index.html (o el puerto que le asigne su terminal).
+La API se iniciará y mostrará en la consola la URL donde está disponible (generalmente `https://localhost:5001` o `http://localhost:5000`).
 
-### 📐 Arquitectura Técnica
-Diagrama de Contenedores (C4)
-El sistema sigue los principios de Clean Architecture, asegurando que la lógica de negocio no dependa de la base de datos o de los frameworks externos.
+#### 4. Acceder a la API
 
-```mermaid
-graph TD
-    Client[Client Browser/Postman] -- HTTP POST --> API[Presentation Layer: API]
-    API -- Call --> APP[Application Layer: Services]
-    APP -- Interface --> DOM[Domain Layer: Entities/Interfaces]
-    INF[Infrastructure Layer: Repositories] -- Implements --> DOM
-    INF -- Dapper Query --> DB[(PostgreSQL: coink_users)]
-```
- #### Diagrama Entidad-Relación (ERD)
-La base de datos está normalizada para mantener la integridad de la jerarquía geográfica.
-```mermaid
-erDiagram
-    Countries ||--o{ Departments : contains
-    Departments ||--o{ Municipalities : contains
-    Municipalities ||--o{ Users : resides_in
+Una vez ejecutada, podrás acceder a:
 
-    Countries {
-        int Id PK
-        string Name
-        string PhoneCode
-    }
-    Departments {
-        int Id PK
-        string Name
-        int CountryId FK
-    }
-    Municipalities {
-        int Id PK
-        string Name
-        int DepartmentId FK
-    }
-    Users {
-        int Id PK
-        string Name
-        string Phone
-        string Address
-        int MunicipalityId FK
-        timestamp CreatedAt
-    }
-```
-#### Diagrama de Secuencia de Registro
-Este flujo detalla cómo viaja la información desde el cliente hasta el procedimiento almacenado en PostgreSQL.
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant Ctrl as UsersController
-    participant S as UserService
-    participant R as UserRepository
-    participant DB as PostgreSQL (sp_RegisterUser)
+- **Swagger UI**: https://localhost:5001/swagger (o el puerto que muestre la consola)
+- **API Base**: https://localhost:5001
+- **Endpoint de usuarios**: https://localhost:5001/api/users
 
-    C->>Ctrl: POST /api/users (CreateUserDto)
-    Ctrl->>S: RegisterUserAsync(dto)
-    S->>S: Validate Inputs (Phone Regex)
-    S->>R: RegisterUserAsync(userEntity)
-    R->>DB: CALL sp_RegisterUser(...)
-    DB-->>R: Returns New ID
-    R-->>S: Returns New ID
-    S-->>Ctrl: Returns Result
-    Ctrl-->>C: 200 OK (UserId)
+---
+
+## 📚 Documentación de API
+
+### Endpoints Disponibles
+
+#### GET /api/users
+Obtiene todos los usuarios registrados.
+
+**Respuesta exitosa (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "name": "John Doe",
+    "phone": "+573001234567",
+    "address": "Calle 123 # 45-67",
+    "municipalityId": 1,
+    "municipalityName": "Medellín",
+    "departmentName": "Antioquia",
+    "countryName": "Colombia"
+  }
+]
 ```
 
-### 🛡️ Documentación de Endpoints
-Registro de Usuario
-* URL: /api/users
-* Método: POST
-* Cuerpo (JSON):
+#### GET /api/users/{id}
+Obtiene un usuario por su ID.
+
+**Respuesta exitosa (200 OK):**
+```json
+{
+  "succeeded": true,
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "phone": "+573001234567",
+    "address": "Calle 123 # 45-67",
+    "municipalityId": 1
+  },
+  "message": null
+}
+```
+
+#### POST /api/users
+Registra un nuevo usuario.
+
+**Cuerpo de la petición (JSON):**
 ```json
 {
   "name": "John Doe",
   "phone": "+573001234567",
   "address": "Calle 123 # 45-67",
-  "countryId": 1,
-  "departmentId": 1,
   "municipalityId": 1
 }
 ```
-### Validaciones: El sistema verifica que el nombre y la dirección no estén vacíos, y que el teléfono cumpla con un formato numérico internacional válido (7 a 15 dígitos).
+
+**Respuesta exitosa (200 OK):**
+```json
+{
+  "succeeded": true,
+  "data": 1,
+  "message": "User created successfully"
+}
+```
+
+**Validaciones:**
+- `name`: No puede estar vacío
+- `phone`: Debe cumplir formato numérico internacional válido (7 a 15 dígitos)
+- `address`: No puede estar vacío
+- `municipalityId`: Debe existir en la base de datos
+
+#### PUT /api/users/{id}
+Actualiza la información de un usuario existente.
+
+**Cuerpo de la petición (JSON):**
+```json
+{
+  "name": "Jane Doe",
+  "phone": "+573009876543",
+  "address": "Calle 456 # 78-90",
+  "municipalityId": 2
+}
+```
+
+**Respuesta exitosa (204 No Content)**
+
+#### DELETE /api/users/{id}
+Elimina un usuario.
+
+**Respuesta exitosa (204 No Content)**
+
+### Documentación Interactiva
+
+La mejor forma de probar la API es usando **Swagger UI**, disponible en:
+- Con Docker: http://localhost:8080/swagger
+- Sin Docker: https://localhost:5001/swagger (o el puerto que muestre la consola)
+
+Swagger proporciona una interfaz interactiva donde puedes probar todos los endpoints directamente desde el navegador.
+
+---
+
+## 📖 Documentación Adicional
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Documentación técnica detallada sobre arquitectura, diseño de base de datos, diagramas y flujos de proceso.
+
+---
+
+## ⚙️ Configuración Avanzada
+
+### Variables de Entorno
+
+Puedes configurar la aplicación usando variables de entorno en lugar de `appsettings.json`:
+
+- `ASPNETCORE_ENVIRONMENT`: Entorno de ejecución (Development, Production)
+- `ConnectionStrings__DefaultConnection`: Cadena de conexión a PostgreSQL
+- `ASPNETCORE_URLS`: URLs donde la API escuchará
+
+### Logs
+
+Los logs se guardan en:
+- Con Docker: Dentro del contenedor en `/app/logs/` (ver con `docker-compose logs api`)
+- Sin Docker: En la carpeta `UserManagement.API/logs/`
+
+---
+
+## 🆘 Solución de Problemas
+
+### La API no inicia
+
+1. Verificar que PostgreSQL esté corriendo
+2. Verificar la cadena de conexión en `appsettings.json`
+3. Verificar que la base de datos `coink_users` exista
+4. Verificar que los scripts SQL se hayan ejecutado correctamente
+
+### Error de conexión a la base de datos
+
+1. Verificar que PostgreSQL esté ejecutándose
+2. Verificar credenciales (usuario y contraseña)
+3. Verificar que el puerto 5432 esté disponible
+4. Verificar firewall (si aplica)
+
+### Docker: Contenedor no inicia
+
+1. Verificar que Docker Desktop esté ejecutándose
+2. Ver logs: `docker-compose logs api` o `docker-compose logs postgres`
+3. Verificar que los puertos 8080 y 5432 no estén en uso
+4. Reconstruir: `docker-compose up -d --build`
+
+---
+
+## 📄 Licencia
+
+Este proyecto es parte de una evaluación técnica.

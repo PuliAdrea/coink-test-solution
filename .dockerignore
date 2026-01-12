@@ -1,0 +1,34 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+
+# Logs
+**/logs/
+*.log
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+
+# Test results
+TestResults/
+coverage/
+
+# Docker files
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Documentation
+*.md
+*.pdf
+
+# Scripts (not needed in Docker build)
+scripts/
+
+# Git
+.git/
+.gitignore
