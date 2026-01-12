@@ -1,0 +1,47 @@
+services:
+  # PostgreSQL 18 Database Service
+  postgres:
+    image: postgres:18
+    container_name: coink-postgres
+    environment:
+      POSTGRES_DB: coink_users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts:/docker-entrypoint-initdb.d
+    networks:
+      - coink-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # .NET 8 API Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coink-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=coink_users;Username=postgres;Password=postgres123
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - coink-network
+
+volumes:
+  postgres_data:
+
+networks:
+  coink-network:
+    driver: bridge
