@@ -270,6 +270,7 @@ Swagger proporciona una interfaz interactiva donde puedes probar todos los endpo
 ## 📖 Documentación Adicional
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Documentación técnica detallada sobre arquitectura, diseño de base de datos, diagramas y flujos de proceso.
+- **[DESIGN_PATTERNS.md](./DESIGN_PATTERNS.md)**: Análisis completo de los patrones de diseño implementados en la solución (Repository, Dependency Injection, Service Layer, DTO, Middleware, etc.).
 
 ---
 
