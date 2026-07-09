@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using UserManagement.Application.DTOs;
 using UserManagement.Application.Services;
 using UserManagement.Application.Wrappers;
